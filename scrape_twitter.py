@@ -4,6 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 from datetime import datetime
 
@@ -30,11 +32,11 @@ def get_tweets(url, ticker, time_interval):
     """
     count = 0
     driver.get(url)
-    time.sleep(15)  # Adjust this value based on your internet speed
-
-    tweets = driver.find_elements(By.XPATH, '//div[@data-testid="tweetText"]')
-    time_element = driver.find_elements(By.XPATH, '//time[@datetime]')
-
+    wait = WebDriverWait(driver, 20)
+    tweets = wait.until(EC.presence_of_all_elements_located((
+        By.XPATH, '//div[@data-testid="tweetText"]')))
+    time_element = wait.until(EC.presence_of_all_elements_located((
+        By.XPATH, '//time[@datetime]')))
     for i in range(len(tweets)):
         tweet_content = tweets[i].text
         tweet_time = time_element[i]
@@ -52,7 +54,7 @@ def get_tweets(url, ticker, time_interval):
 if __name__ == "__main__":
     count = 0
     ticker = "$SPX"
-    time_interval = 15
+    time_interval = 1440
     urls = ['https://twitter.com/Mr_Derivatives',
             'https://twitter.com/warrior_0719',
             'https://twitter.com/ChartingProdigy',
@@ -63,6 +65,9 @@ if __name__ == "__main__":
             'https://twitter.com/CordovaTrades',
             'https://twitter.com/Barchart',
             'https://twitter.com/RoyLMattox']
+    # login to your account
+    driver.get("https://www.twitter.com/login")
+    time.sleep(45)
     while True:
         for url in urls:
             count += get_tweets(url, ticker, time_interval)
